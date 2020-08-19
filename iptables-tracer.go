@@ -186,8 +186,8 @@ func printRule(maxLength int, ts time.Time, rule iptablesRule, fwMark uint32, ii
 		fmtStr := fmt.Sprintf("%%s %%-6s %%-%ds 0x%%08x%%s %%s  [In:%%s Out:%%s]\n", maxLength)
 		fmt.Printf(fmtStr, ts.Format("15:04:05.000000"), rule.Table, rule.Chain, fwMark, ctStr, packetStr, iif, oif)
 	} else {
-		fmtStr := fmt.Sprintf("%%s %%-6s %%-%ds %%s 0x%%08x%%s %%s  [In:%%s Out:%%s]\n", maxLength)
-		fmt.Printf(fmtStr, ts.Format("15:04:05.000000"), rule.Table, rule.Chain, rule.Rule, fwMark, ctStr, packetStr, iif, oif)
+		fmtStr := fmt.Sprintf("%%s %%-6s %%-%ds 0x%%08x%%s %%s  [In:%%s Out:%%s]\n\t%%s\n", maxLength)
+		fmt.Printf(fmtStr, ts.Format("15:04:05.000000"), rule.Table, rule.Chain, fwMark, ctStr, packetStr, iif, oif, rule.Rule)
 	}
 }
 

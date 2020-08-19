@@ -17,6 +17,7 @@ func extendIptablesPolicy(lines []string, traceID int, traceFilter string, fwMar
 	tableRe := regexp.MustCompile(`^\*(\S+)`)
 	ruleRe := regexp.MustCompile(`^-[AI]\s+(\S+)\s+(.*)$`)
 	commitRe := regexp.MustCompile(`^COMMIT`)
+	extractFilterRe := regexp.MustCompile(`(.*)-[gj]`)
 
 	markFilter := ""
 	if fwMark != 0 {
@@ -55,7 +56,11 @@ func extendIptablesPolicy(lines []string, traceID int, traceFilter string, fwMar
 				log.Fatal("Error: found rule definition before initial table definition")
 			}
 			ruleMap[ruleIndex] = iptablesRule{Table: table, Chain: res[1], Rule: res[2]}
-			traceRule := fmt.Sprintf("-A %s %s %s -j NFLOG --nflog-prefix \"iptr:%d:%d\" --nflog-group %d", res[1], traceFilter, markFilter, traceID, ruleIndex, nflogGroup)
+			var originFilter string
+			if exf := extractFilterRe.FindStringSubmatch(res[2]); exf != nil {
+				originFilter = exf[1]
+			}
+			traceRule := fmt.Sprintf("-A %s %s %s %s -j NFLOG --nflog-prefix \"iptr:%d:%d\" --nflog-group %d", res[1], traceFilter, originFilter, markFilter, traceID, ruleIndex, nflogGroup)
 			ruleIndex++
 			newIptablesConfig = append(newIptablesConfig, traceRule)
 		}
